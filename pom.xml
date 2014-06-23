@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+
+    <packaging>jar</packaging>
+    <groupId>org.webjars</groupId>
+    <artifactId>uuid</artifactId>
+    <version>1.4.1-SNAPSHOT</version>
+    <name>uuid</name>
+    <description>WebJar for node-uuid</description>
+    <url>http://webjars.org</url>
+
+    <licenses>
+        <license>
+            <name>MIT</name>
+            <url>https://github.com/broofa/node-uuid/blob/master/LICENSE.md</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/webjars/uuid</url>
+        <connection>scm:git:https://github.com/webjars/uuid.git</connection>
+        <developerConnection>scm:git:https://github.com/webjars/uuid.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>alpeb</id>
+            <name>Alejandro Pedraza</name>
+            <email>alejandro@alpeb.com</email>
+        </developer>
+    </developers>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <upstreamVersion>1.4.1</upstreamVersion>
+        <upstream.url>https://github.com/broofa/node-uuid</upstream.url>
+        <extractDir>${project.build.directory}/uuid-${upstreamVersion}</extractDir>
+        <destDir>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${upstreamVersion}</destDir>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>wagon-maven-plugin</artifactId>
+                <version>1.0-beta-4</version>
+                <executions>
+                    <execution>
+                        <id>download-archive</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>download-single</goal>
+                        </goals>
+                        <configuration>
+                            <url>${upstream.url}/archive</url>
+                            <fromFile>v${upstreamVersion}.zip</fromFile>
+                            <toDir>${project.build.directory}</toDir>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <echo message="unzip archive" />
+                                <unzip src="${project.build.directory}/v${upstreamVersion}.zip" dest="${project.build.directory}" />
+                                <move file="${project.build.directory}/node-uuid-${upstreamVersion}" tofile="${project.build.directory}/uuid-${upstreamVersion}" />
+
+                                <echo message="moving resources" />
+                                <move file="${extractDir}/package.json" toDir="${destDir}" />
+                                <move file="${extractDir}/uuid.js" toDir="${destDir}" />
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- I need to change the package name from node-uuid to uuid for this to work -->
+            <plugin>
+              <groupId>com.google.code.maven-replacer-plugin</groupId>
+              <artifactId>replacer</artifactId>
+              <version>1.5.3</version>
+              <executions>
+                  <execution>
+                      <phase>process-resources</phase>
+                      <goals>
+                          <goal>replace</goal>
+                      </goals>                   
+                  </execution>
+              </executions>
+              <configuration>
+                  <file>${destDir}/package.json</file>
+                  <replacements>
+                      <replacement>
+                          <token>"node-uuid"</token>
+                          <value>"uuid"</value>
+                      </replacement>         
+                  </replacements>
+              </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.5.1</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>sonatype-nexus-staging</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>
