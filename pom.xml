@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <groupId>org.webjars</groupId>
     <artifactId>uuid</artifactId>
-    <version>1.4.2-SNAPSHOT</version>
+    <version>1.4.1-SNAPSHOT</version>
     <name>uuid</name>
     <description>WebJar for node-uuid</description>
     <url>http://webjars.org</url>
